@@ -128,30 +128,30 @@ export default function HomePage() {
   const { user, isAuthenticated, logout } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-white dark:bg-slate-950">
       {/* 헤더 */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md">
         <div className="container flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-              <Heart className="h-5 w-5 text-white" />
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="h-8 w-8 rounded-md bg-slate-900 dark:bg-white flex items-center justify-center transition-transform group-hover:scale-105">
+              <Heart className="h-4 w-4 text-white dark:text-slate-900 fill-current" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight">
               펫파인더
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link href="/" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
               전체 반려동물
             </Link>
-            <Link href="/dogs" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/dogs" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
               강아지
             </Link>
-            <Link href="/cats" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/cats" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
               고양이
             </Link>
-            <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/about" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
               소개
             </Link>
           </nav>
@@ -196,32 +196,38 @@ export default function HomePage() {
       </header>
 
       {/* 히어로 섹션 */}
-      <section className="relative py-20 px-4">
+      <section className="relative py-24 px-4 border-b border-slate-100 dark:border-slate-800">
         <div className="container mx-auto text-center">
-          <div className="max-w-4xl mx-auto">
-            <Badge className="mb-4 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 dark:from-blue-900 dark:to-purple-900 dark:text-blue-200">
-              🐾 완벽한 반려동물을 찾아보세요
+          <div className="max-w-3xl mx-auto">
+            <Badge className="mb-6 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-0 px-3 py-1 text-xs font-medium">
+              전국 펫샵 정보 비교 플랫폼
             </Badge>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-slate-100 dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-              털복숭이 친구를 찾아보세요
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-slate-900 dark:text-white tracking-tight">
+              반려동물을 찾는
+              <br />
+              가장 쉬운 방법
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              전국의 모든 펫샵 정보를 한눈에 비교하세요. 원하는 반려동물을 찾고 최적의 펫샵에서 분양받으세요. 모든 펫샵 정보가 한 곳에 모여있습니다.
+            <p className="text-lg text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+              전국의 모든 펫샵 정보를 한눈에 비교하세요. 원하는 반려동물을 찾고 최적의 펫샵에서 분양받으세요.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/dogs">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8"
+                  className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-base px-8 h-12 font-medium"
                 >
-                  <Search className="mr-2 h-5 w-5" />
-                  강아지 찾아보기
+                  <Search className="mr-2 h-4 w-4" />
+                  강아지 찾기
                 </Button>
               </Link>
               <Link href="/cats">
-                <Button size="lg" variant="outline" className="text-lg px-8 bg-transparent">
-                  <Search className="mr-2 h-5 w-5" />
-                  고양이 찾아보기
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="text-base px-8 h-12 font-medium border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900"
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  고양이 찾기
                 </Button>
               </Link>
             </div>
@@ -230,15 +236,15 @@ export default function HomePage() {
       </section>
 
       {/* 통계 */}
-      <section className="py-16 px-4 bg-white/50 dark:bg-slate-900/50">
+      <section className="py-16 px-4 bg-slate-50 dark:bg-slate-900/50">
         <div className="container mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
-              <Card key={index} className="text-center p-6 border-0 shadow-lg">
+              <Card key={index} className="text-center p-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="pt-6">
-                  <stat.icon className="h-8 w-8 mx-auto mb-3 text-primary" />
-                  <div className="text-2xl font-bold mb-1">{stat.value}</div>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <stat.icon className="h-6 w-6 mx-auto mb-3 text-slate-600 dark:text-slate-400" />
+                  <div className="text-3xl font-bold mb-1 text-slate-900 dark:text-white">{stat.value}</div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">{stat.label}</p>
                 </CardContent>
               </Card>
             ))}
@@ -254,20 +260,24 @@ export default function HomePage() {
       </section>
 
       {/* 추천 반려동물 */}
-      <section className="py-16 px-4">
+      <section className="py-20 px-4">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-12">
             <div>
-              <h2 className="text-3xl font-bold mb-2">추천 반려동물</h2>
-              <p className="text-muted-foreground">평생 가족을 기다리는 사랑스러운 반려동물들</p>
+              <h2 className="text-3xl font-bold mb-2 text-slate-900 dark:text-white">추천 반려동물</h2>
+              <p className="text-slate-600 dark:text-slate-400">전국 펫샵에서 엄선한 반려동물</p>
             </div>
             <div className="flex space-x-2">
-              <Button variant="outline">
-                <Link href="/dogs">강아지 보기</Link>
-              </Button>
-              <Button variant="outline">
-                <Link href="/cats">고양이 보기</Link>
-              </Button>
+              <Link href="/dogs">
+                <Button variant="outline" className="border-slate-200 dark:border-slate-800">
+                  강아지 보기
+                </Button>
+              </Link>
+              <Link href="/cats">
+                <Button variant="outline" className="border-slate-200 dark:border-slate-800">
+                  고양이 보기
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -286,54 +296,54 @@ export default function HomePage() {
       </section>
 
       {/* 이용 방법 */}
-      <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="container mx-auto text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">펫파인더 이용 방법</h2>
-          <p className="text-blue-100 mb-12 max-w-2xl mx-auto">
+      <section className="py-20 px-4 bg-slate-900 dark:bg-slate-950">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4 text-white">이용 방법</h2>
+          <p className="text-slate-400 mb-16 max-w-2xl mx-auto text-lg">
             전국의 모든 펫샵 정보를 한 곳에서 비교하고, 원하는 반려동물을 찾아 해당 펫샵에서 직접 분양받으세요.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="h-8 w-8" />
+              <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-6 border border-white/10">
+                <Search className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">1. 펫샵 정보 검색</h3>
-              <p className="text-blue-100">전국의 펫샵에서 분양 가능한 반려동물 정보를 검색하고 비교하세요.</p>
+              <h3 className="text-xl font-semibold mb-3 text-white">1. 펫샵 정보 검색</h3>
+              <p className="text-slate-400 leading-relaxed">전국의 펫샵에서 분양 가능한 반려동물 정보를 검색하고 비교하세요.</p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="h-8 w-8" />
+              <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-6 border border-white/10">
+                <Heart className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">2. 가격 및 정보 비교</h3>
-              <p className="text-blue-100">여러 펫샵의 가격, 위치, 반려동물 정보를 한눈에 비교하세요.</p>
+              <h3 className="text-xl font-semibold mb-3 text-white">2. 가격 및 정보 비교</h3>
+              <p className="text-slate-400 leading-relaxed">여러 펫샵의 가격, 위치, 반려동물 정보를 한눈에 비교하세요.</p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8" />
+              <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-6 border border-white/10">
+                <Users className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">3. 펫샵으로 이동</h3>
-              <p className="text-blue-100">원하는 반려동물을 클릭하면 해당 펫샵 웹사이트로 이동하여 분양을 진행하세요.</p>
+              <h3 className="text-xl font-semibold mb-3 text-white">3. 펫샵으로 이동</h3>
+              <p className="text-slate-400 leading-relaxed">원하는 반려동물을 클릭하면 해당 펫샵 웹사이트로 이동하여 분양을 진행하세요.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* 푸터 */}
-      <footer className="bg-slate-900 text-white py-12 px-4">
+      <footer className="bg-slate-900 text-white py-16 px-4 border-t border-slate-800">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                  <Heart className="h-5 w-5 text-white" />
+                <div className="h-8 w-8 rounded-md bg-white flex items-center justify-center">
+                  <Heart className="h-4 w-4 text-slate-900 fill-current" />
                 </div>
-                <span className="text-xl font-bold">펫파인더</span>
+                <span className="text-xl font-semibold">펫파인더</span>
               </div>
-              <p className="text-slate-400">사랑하는 가족과 완벽한 털복숭이 반려동물을 연결합니다.</p>
+              <p className="text-slate-400 text-sm leading-relaxed">전국 펫샵 정보를 한눈에 비교하는 플랫폼입니다.</p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">둘러보기</h3>
-              <ul className="space-y-2 text-slate-400">
+              <h3 className="font-semibold mb-4 text-white">둘러보기</h3>
+              <ul className="space-y-2.5 text-slate-400 text-sm">
                 <li>
                   <Link href="/" className="hover:text-white transition-colors">
                     전체 반려동물
@@ -349,61 +359,31 @@ export default function HomePage() {
                     고양이
                   </Link>
                 </li>
-                <li>
-                  <Link href="/search" className="hover:text-white transition-colors">
-                    고급 검색
-                  </Link>
-                </li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">펫샵 사업자</h3>
-              <ul className="space-y-2 text-slate-400">
+              <h3 className="font-semibold mb-4 text-white">펫샵 사업자</h3>
+              <ul className="space-y-2.5 text-slate-400 text-sm">
                 <li>
-                  <Link href="/list-pets" className="hover:text-white transition-colors">
+                  <Link href="/pets/register" className="hover:text-white transition-colors">
                     반려동물 등록하기
                   </Link>
                 </li>
-                <li>
-                  <Link href="/partner" className="hover:text-white transition-colors">
-                    파트너 되기
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/pricing" className="hover:text-white transition-colors">
-                    요금제
-                  </Link>
-                </li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">고객지원</h3>
-              <ul className="space-y-2 text-slate-400">
+              <h3 className="font-semibold mb-4 text-white">고객지원</h3>
+              <ul className="space-y-2.5 text-slate-400 text-sm">
                 <li>
                   <Link href="/about" className="hover:text-white transition-colors">
                     회사 소개
                   </Link>
                 </li>
-                <li>
-                  <Link href="/contact" className="hover:text-white transition-colors">
-                    문의하기
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/faq" className="hover:text-white transition-colors">
-                    자주 묻는 질문
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy" className="hover:text-white transition-colors">
-                    개인정보처리방침
-                  </Link>
-                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-slate-800 mt-8 pt-8 text-center text-slate-400">
-            <p>&copy; 2025 펫파인더. 모든 권리 보유. 마음과 발톱을 연결합니다.</p>
+          <div className="border-t border-slate-800 mt-12 pt-8 text-center text-slate-500 text-sm">
+            <p>&copy; 2025 펫파인더. All rights reserved.</p>
           </div>
         </div>
       </footer>

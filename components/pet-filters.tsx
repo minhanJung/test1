@@ -86,7 +86,7 @@ export function PetFilters() {
   const availableBreeds = petType === "dog" ? dogBreeds : petType === "cat" ? catBreeds : [...dogBreeds, ...catBreeds]
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
       <CardContent className="p-6">
         {/* 검색창 */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">

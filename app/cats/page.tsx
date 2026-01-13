@@ -128,7 +128,7 @@ export default function CatsPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-white dark:bg-slate-950">
       <div className="container mx-auto px-4 py-8">
         {/* 헤더 */}
         <div className="mb-8">
@@ -138,11 +138,13 @@ export default function CatsPage() {
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2 flex items-center">
-                🐱 분양 고양이
-                <Badge className="ml-3 bg-purple-100 text-purple-800">{catListings.length}개 리스팅</Badge>
+              <h1 className="text-4xl font-bold mb-3 text-slate-900 dark:text-white tracking-tight">
+                고양이 분양
               </h1>
-              <p className="text-muted-foreground">신뢰할 수 있는 브리더로부터 완벽한 반려묘를 찾아보세요</p>
+              <div className="flex items-center gap-3 mb-2">
+                <p className="text-slate-600 dark:text-slate-400">전국 펫샵의 고양이 정보를 비교하세요</p>
+                <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-0">{catListings.length}개 리스팅</Badge>
+              </div>
             </div>
           </div>
         </div>

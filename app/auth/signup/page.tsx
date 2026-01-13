@@ -51,21 +51,21 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-              <Heart className="h-6 w-6 text-white" />
+            <div className="h-10 w-10 rounded-md bg-slate-900 dark:bg-white flex items-center justify-center">
+              <Heart className="h-5 w-5 text-white dark:text-slate-900 fill-current" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">
               펫파인더
             </span>
           </Link>
         </div>
 
-        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-lg bg-white dark:bg-slate-950">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl font-bold">회원가입</CardTitle>
             <CardDescription>펫파인더에 가입하여 반려동물을 찾아보세요</CardDescription>
@@ -182,7 +182,7 @@ export default function SignupPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100"
                 disabled={isLoading}
               >
                 {isLoading ? "계정 생성 중..." : "회원가입"}
