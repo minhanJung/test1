@@ -1,10 +1,21 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Heart, MapPin, Calendar, Users, Search, Filter } from "lucide-react"
+import { Heart, MapPin, Calendar, Users, Search, Filter, User, LogOut } from "lucide-react"
 import Link from "next/link"
 import { PetFilters } from "@/components/pet-filters"
 import { PetCard } from "@/components/pet-card"
+import { useAuth } from "@/contexts/auth-context"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 // 여러 펫샵의 리스팅을 나타내는 모의 데이터
 const featuredPets = [
@@ -114,6 +125,8 @@ const stats = [
 ]
 
 export default function HomePage() {
+  const { user, isAuthenticated, logout } = useAuth()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
       {/* 헤더 */}
@@ -144,9 +157,40 @@ export default function HomePage() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm">
-              반려동물 등록하기
-            </Button>
+            {isAuthenticated && (
+              <Link href="/pets/register">
+                <Button variant="outline" size="sm">
+                  반려동물 등록하기
+                </Button>
+              </Link>
+            )}
+
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <User className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>{user?.name}님</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {user?.role === "admin" && (
+                    <Link href="/admin">
+                      <DropdownMenuItem>관리자 페이지</DropdownMenuItem>
+                    </Link>
+                  )}
+                  <DropdownMenuItem onClick={logout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    로그아웃
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/auth/login">
+                <Button size="sm">로그인</Button>
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -162,21 +206,24 @@ export default function HomePage() {
               털복숭이 친구를 찾아보세요
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              전국의 신뢰할 수 있는 펫샵에서 사랑스러운 강아지와 고양이를 발견하세요. 모든 것이 한 곳에, 모든 리스팅이
-              검증되었습니다.
+              전국의 모든 펫샵 정보를 한눈에 비교하세요. 원하는 반려동물을 찾고 최적의 펫샵에서 분양받으세요. 모든 펫샵 정보가 한 곳에 모여있습니다.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8"
-              >
-                <Search className="mr-2 h-5 w-5" />
-                모든 반려동물 보기
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 bg-transparent">
-                <Filter className="mr-2 h-5 w-5" />
-                고급 검색
-              </Button>
+              <Link href="/dogs">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8"
+                >
+                  <Search className="mr-2 h-5 w-5" />
+                  강아지 찾아보기
+                </Button>
+              </Link>
+              <Link href="/cats">
+                <Button size="lg" variant="outline" className="text-lg px-8 bg-transparent">
+                  <Search className="mr-2 h-5 w-5" />
+                  고양이 찾아보기
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -243,29 +290,29 @@ export default function HomePage() {
         <div className="container mx-auto text-center text-white">
           <h2 className="text-3xl font-bold mb-4">펫파인더 이용 방법</h2>
           <p className="text-blue-100 mb-12 max-w-2xl mx-auto">
-            전국의 신뢰할 수 있는 펫샵의 리스팅을 한 곳에 모아 완벽한 반려동물 찾기를 간단하게 만들어드립니다.
+            전국의 모든 펫샵 정보를 한 곳에서 비교하고, 원하는 반려동물을 찾아 해당 펫샵에서 직접 분양받으세요.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">1. 검색 & 필터링</h3>
-              <p className="text-blue-100">고급 필터로 수천 개의 검증된 반려동물 리스팅을 검색하세요.</p>
+              <h3 className="text-xl font-semibold mb-2">1. 펫샵 정보 검색</h3>
+              <p className="text-blue-100">전국의 펫샵에서 분양 가능한 반려동물 정보를 검색하고 비교하세요.</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">2. 완벽한 매칭 찾기</h3>
-              <p className="text-blue-100">당신의 라이프스타일과 선호도에 맞는 완벽한 반려동물을 발견하세요.</p>
+              <h3 className="text-xl font-semibold mb-2">2. 가격 및 정보 비교</h3>
+              <p className="text-blue-100">여러 펫샵의 가격, 위치, 반려동물 정보를 한눈에 비교하세요.</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">3. 직접 연결</h3>
-              <p className="text-blue-100">펫샵에 직접 연락하여 방문과 입양을 준비하세요.</p>
+              <h3 className="text-xl font-semibold mb-2">3. 펫샵으로 이동</h3>
+              <p className="text-blue-100">원하는 반려동물을 클릭하면 해당 펫샵 웹사이트로 이동하여 분양을 진행하세요.</p>
             </div>
           </div>
         </div>

@@ -1,12 +1,20 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Users, ShoppingBag, DollarSign, Plus, Edit, Trash2, Eye, Package, Settings } from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
+import { useToast } from "@/hooks/use-toast"
+import Link from "next/link"
 
 const stats = [
   {
@@ -39,92 +47,67 @@ const stats = [
   },
 ]
 
-const recentOrders = [
-  {
-    id: "ORD-001",
-    customer: "John Doe",
-    email: "john@example.com",
-    amount: "$299.00",
-    status: "completed",
-    date: "2025-01-14",
-  },
-  {
-    id: "ORD-002",
-    customer: "Jane Smith",
-    email: "jane@example.com",
-    amount: "$199.00",
-    status: "pending",
-    date: "2025-01-14",
-  },
-  {
-    id: "ORD-003",
-    customer: "Bob Johnson",
-    email: "bob@example.com",
-    amount: "$149.00",
-    status: "shipped",
-    date: "2025-01-13",
-  },
-]
+// 로컬 스토리지에서 데이터 가져오기/저장하기
+function getStoredOrders() {
+  if (typeof window === "undefined") return []
+  const orders = localStorage.getItem("admin_orders")
+  return orders ? JSON.parse(orders) : []
+}
 
-const products = [
-  {
-    id: 1,
-    name: "Wireless Pro Headphones",
-    price: "$299.00",
-    stock: 45,
-    status: "active",
-    sales: 124,
-  },
-  {
-    id: 2,
-    name: "Smart Fitness Watch",
-    price: "$199.00",
-    stock: 23,
-    status: "active",
-    sales: 89,
-  },
-  {
-    id: 3,
-    name: "Premium Coffee Maker",
-    price: "$149.00",
-    stock: 0,
-    status: "out_of_stock",
-    sales: 156,
-  },
-]
+function saveOrders(orders: any[]) {
+  if (typeof window === "undefined") return
+  localStorage.setItem("admin_orders", JSON.stringify(orders))
+}
 
-const users = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    role: "customer",
-    orders: 5,
-    spent: "$1,299.00",
-    joined: "2024-12-15",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    role: "customer",
-    orders: 3,
-    spent: "$599.00",
-    joined: "2024-12-20",
-  },
-  {
-    id: 3,
-    name: "Admin User",
-    email: "admin@shopvibe.com",
-    role: "admin",
-    orders: 0,
-    spent: "$0.00",
-    joined: "2024-01-01",
-  },
-]
+function getStoredProducts() {
+  if (typeof window === "undefined") return []
+  const products = localStorage.getItem("admin_products")
+  return products ? JSON.parse(products) : []
+}
+
+function saveProducts(products: any[]) {
+  if (typeof window === "undefined") return
+  localStorage.setItem("admin_products", JSON.stringify(products))
+}
+
+function getStoredUsers() {
+  if (typeof window === "undefined") return []
+  const users = localStorage.getItem("users")
+  return users ? JSON.parse(users) : []
+}
+
+function saveUsers(users: any[]) {
+  if (typeof window === "undefined") return
+  localStorage.setItem("users", JSON.stringify(users))
+}
 
 export default function AdminDashboard() {
+  const { user, isAuthenticated } = useAuth()
+  const router = useRouter()
+  const { toast } = useToast()
   const [activeTab, setActiveTab] = useState("overview")
+  const [orders, setOrders] = useState(getStoredOrders())
+  const [products, setProducts] = useState(getStoredProducts())
+  const [users, setUsers] = useState(getStoredUsers())
+  const [isProductDialogOpen, setIsProductDialogOpen] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<any>(null)
+  const [productForm, setProductForm] = useState({
+    name: "",
+    price: "",
+    stock: "",
+    status: "active",
+  })
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== "admin") {
+      router.push("/")
+      toast({
+        title: "접근 권한 없음",
+        description: "관리자만 접근할 수 있습니다.",
+        variant: "destructive",
+      })
+    }
+  }, [isAuthenticated, user, router, toast])
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {
@@ -140,26 +123,115 @@ export default function AdminDashboard() {
     return <Badge className={variants[status] || variants.customer}>{status.replace("_", " ")}</Badge>
   }
 
+  const handleAddProduct = () => {
+    setEditingProduct(null)
+    setProductForm({ name: "", price: "", stock: "", status: "active" })
+    setIsProductDialogOpen(true)
+  }
+
+  const handleEditProduct = (product: any) => {
+    setEditingProduct(product)
+    setProductForm({
+      name: product.name,
+      price: product.price.replace("$", ""),
+      stock: product.stock.toString(),
+      status: product.status,
+    })
+    setIsProductDialogOpen(true)
+  }
+
+  const handleSaveProduct = () => {
+    if (editingProduct) {
+      const updated = products.map((p: any) =>
+        p.id === editingProduct.id
+          ? {
+              ...p,
+              name: productForm.name,
+              price: `$${productForm.price}`,
+              stock: Number.parseInt(productForm.stock),
+              status: productForm.status,
+            }
+          : p
+      )
+      setProducts(updated)
+      saveProducts(updated)
+      toast({
+        title: "상품 수정 완료",
+        description: "상품이 성공적으로 수정되었습니다.",
+      })
+    } else {
+      const newProduct = {
+        id: Date.now(),
+        name: productForm.name,
+        price: `$${productForm.price}`,
+        stock: Number.parseInt(productForm.stock),
+        status: productForm.status,
+        sales: 0,
+      }
+      const updated = [...products, newProduct]
+      setProducts(updated)
+      saveProducts(updated)
+      toast({
+        title: "상품 추가 완료",
+        description: "새 상품이 추가되었습니다.",
+      })
+    }
+    setIsProductDialogOpen(false)
+  }
+
+  const handleDeleteProduct = (id: number) => {
+    const updated = products.filter((p: any) => p.id !== id)
+    setProducts(updated)
+    saveProducts(updated)
+    toast({
+      title: "상품 삭제 완료",
+      description: "상품이 삭제되었습니다.",
+    })
+  }
+
+  const handleDeleteUser = (id: string) => {
+    if (id === user?.id) {
+      toast({
+        title: "오류",
+        description: "자신의 계정은 삭제할 수 없습니다.",
+        variant: "destructive",
+      })
+      return
+    }
+    const updated = users.filter((u: any) => u.id !== id)
+    setUsers(updated)
+    saveUsers(updated)
+    toast({
+      title: "사용자 삭제 완료",
+      description: "사용자가 삭제되었습니다.",
+    })
+  }
+
+  if (!isAuthenticated || user?.role !== "admin") {
+    return null
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage your e-commerce platform</p>
+            <h1 className="text-3xl font-bold">관리자 대시보드</h1>
+            <p className="text-muted-foreground">플랫폼 관리</p>
           </div>
-          <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
+          <Link href="/">
+            <Button variant="outline">
+              홈으로
+            </Button>
+          </Link>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="products">Products</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="overview">개요</TabsTrigger>
+            <TabsTrigger value="orders">주문</TabsTrigger>
+            <TabsTrigger value="products">상품</TabsTrigger>
+            <TabsTrigger value="users">사용자</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -184,8 +256,8 @@ export default function AdminDashboard() {
             {/* Recent Orders */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Orders</CardTitle>
-                <CardDescription>Latest orders from your customers</CardDescription>
+                <CardTitle>최근 주문</CardTitle>
+                <CardDescription>고객의 최신 주문 내역</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -229,13 +301,9 @@ export default function AdminDashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>All Orders</CardTitle>
-                  <CardDescription>Manage all customer orders</CardDescription>
+                  <CardTitle>모든 주문</CardTitle>
+                  <CardDescription>모든 고객 주문 관리</CardDescription>
                 </div>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  New Order
-                </Button>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -284,13 +352,68 @@ export default function AdminDashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Products</CardTitle>
-                  <CardDescription>Manage your product catalog</CardDescription>
+                  <CardTitle>상품</CardTitle>
+                  <CardDescription>상품 카탈로그 관리</CardDescription>
                 </div>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Product
-                </Button>
+                <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button onClick={handleAddProduct}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      상품 추가
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{editingProduct ? "상품 수정" : "상품 추가"}</DialogTitle>
+                      <DialogDescription>
+                        {editingProduct ? "상품 정보를 수정하세요." : "새 상품 정보를 입력하세요."}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>상품명</Label>
+                        <Input
+                          value={productForm.name}
+                          onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>가격 ($)</Label>
+                        <Input
+                          type="number"
+                          value={productForm.price}
+                          onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>재고</Label>
+                        <Input
+                          type="number"
+                          value={productForm.stock}
+                          onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>상태</Label>
+                        <Select
+                          value={productForm.status}
+                          onValueChange={(value) => setProductForm({ ...productForm, status: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">활성</SelectItem>
+                            <SelectItem value="out_of_stock">품절</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button onClick={handleSaveProduct} className="w-full">
+                        저장
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -334,13 +457,9 @@ export default function AdminDashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Users</CardTitle>
-                  <CardDescription>Manage user accounts and permissions</CardDescription>
+                  <CardTitle>사용자</CardTitle>
+                  <CardDescription>사용자 계정 및 권한 관리</CardDescription>
                 </div>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add User
-                </Button>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -369,10 +488,7 @@ export default function AdminDashboard() {
                         <TableCell>{user.joined}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button variant="ghost" size="icon">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteUser(user.id)}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>

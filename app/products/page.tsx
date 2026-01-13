@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Search, Filter, Grid3X3, List, Star, ShoppingCart, Heart } from "lucide-react"
+import { Search, Filter, Grid3X3, List, Star, Heart, ExternalLink } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -290,8 +290,10 @@ export default function ProductsPage() {
                       <Button
                         size="sm"
                         className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        onClick={() => window.open(`/products/${product.id}`, "_blank")}
                       >
-                        Add to Cart
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        상세보기
                       </Button>
                     </div>
                   </CardContent>

@@ -28,13 +28,25 @@ interface PetCardProps {
 }
 
 export function PetCard({ pet }: PetCardProps) {
-  const handleVisitShop = () => {
-    // 실제 앱에서는 외부 샵 URL을 열 것입니다
-    window.open(pet.shopUrl, "_blank")
+  const handleCardClick = () => {
+    // 카드 클릭 시 펫샵 웹사이트로 리디렉트
+    if (pet.shopUrl) {
+      window.open(pet.shopUrl, "_blank")
+    }
+  }
+
+  const handleVisitShop = (e: React.MouseEvent) => {
+    e.stopPropagation() // 이벤트 버블링 방지
+    if (pet.shopUrl) {
+      window.open(pet.shopUrl, "_blank")
+    }
   }
 
   return (
-    <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
+    <Card 
+      className="group hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="relative">
         <Image
           src={pet.image || "/placeholder.svg"}
@@ -108,7 +120,7 @@ export function PetCard({ pet }: PetCardProps) {
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
           >
             <ExternalLink className="mr-2 h-4 w-4" />
-            펫샵 방문하기
+            펫샵에서 분양하기
           </Button>
         </div>
       </CardContent>
