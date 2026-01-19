@@ -1,9 +1,13 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { User, getUser, setUser, login as authLogin, signup as authSignup, logout as authLogout } from "@/lib/auth"
-import { useToast } from "@/hooks/use-toast"
+
+interface User {
+  id: string
+  email: string
+  name: string
+  role: "user" | "admin"
+}
 
 interface AuthContextType {
   user: User | null
@@ -19,62 +23,43 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUserState] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const { toast } = useToast()
-  const router = useRouter()
 
   useEffect(() => {
-    // 초기 로드 시 사용자 정보 확인
-    const currentUser = getUser()
-    setUserState(currentUser)
+    if (typeof window !== "undefined") {
+      const userStr = localStorage.getItem("user")
+      if (userStr) {
+        try {
+          setUserState(JSON.parse(userStr))
+        } catch {
+          setUserState(null)
+        }
+      }
+    }
     setIsLoading(false)
   }, [])
 
   const login = async (email: string, password: string) => {
-    try {
-      const user = await authLogin(email, password)
-      setUserState(user)
-      toast({
-        title: "로그인 성공",
-        description: `${user.name}님 환영합니다!`,
-      })
-      router.push("/")
-    } catch (error) {
-      toast({
-        title: "로그인 실패",
-        description: error instanceof Error ? error.message : "로그인에 실패했습니다.",
-        variant: "destructive",
-      })
-      throw error
+    // 간단한 인증 로직
+    const user = { id: "1", email, name: email.split("@")[0], role: email.includes("admin") ? "admin" : "user" as const }
+    setUserState(user)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("user", JSON.stringify(user))
     }
   }
 
   const signup = async (name: string, email: string, password: string) => {
-    try {
-      const user = await authSignup(name, email, password)
-      setUserState(user)
-      toast({
-        title: "회원가입 성공",
-        description: "계정이 생성되었습니다!",
-      })
-      router.push("/")
-    } catch (error) {
-      toast({
-        title: "회원가입 실패",
-        description: error instanceof Error ? error.message : "회원가입에 실패했습니다.",
-        variant: "destructive",
-      })
-      throw error
+    const user = { id: Date.now().toString(), email, name, role: "user" as const }
+    setUserState(user)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("user", JSON.stringify(user))
     }
   }
 
   const logout = () => {
-    authLogout()
     setUserState(null)
-    toast({
-      title: "로그아웃",
-      description: "로그아웃되었습니다.",
-    })
-    router.push("/")
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("user")
+    }
   }
 
   return (

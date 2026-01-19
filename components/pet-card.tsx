@@ -5,23 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Heart, MapPin, Calendar, ExternalLink, Shield, Award } from "lucide-react"
 import Image from "next/image"
-
-interface Pet {
-  id: number
-  name: string
-  breed: string
-  age: string
-  gender: string
-  price: number
-  location: string
-  image: string
-  shop: string
-  shopUrl: string
-  type: "dog" | "cat"
-  description: string
-  vaccinated: boolean
-  registered: boolean
-}
+import { Pet } from "@/lib/pet-types"
 
 interface PetCardProps {
   pet: Pet
@@ -29,16 +13,15 @@ interface PetCardProps {
 
 export function PetCard({ pet }: PetCardProps) {
   const handleCardClick = () => {
-    // 카드 클릭 시 펫샵 웹사이트로 리디렉트
     if (pet.shopUrl) {
       window.open(pet.shopUrl, "_blank")
     }
   }
 
   const handleVisitShop = (e: React.MouseEvent) => {
-    e.stopPropagation() // 이벤트 버블링 방지
+    e.stopPropagation()
     if (pet.shopUrl) {
-      window.open(pet.shopUrl, "_blank")
+    window.open(pet.shopUrl, "_blank")
     }
   }
 
@@ -54,6 +37,9 @@ export function PetCard({ pet }: PetCardProps) {
           width={300}
           height={300}
           className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder.svg"
+          }}
         />
         <Badge className={`absolute top-3 left-3 ${pet.type === "dog" ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900" : "bg-slate-700 dark:bg-slate-300 text-white dark:text-slate-900"} border-0 font-medium text-xs px-2.5 py-1`}>
           {pet.type === "dog" ? "강아지" : "고양이"}

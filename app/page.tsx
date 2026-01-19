@@ -1,13 +1,16 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Heart, MapPin, Calendar, Users, Search, Filter, User, LogOut } from "lucide-react"
+import { Heart, MapPin, Calendar, Users, Search, User, LogOut, RefreshCw } from "lucide-react"
 import Link from "next/link"
-import { PetFilters } from "@/components/pet-filters"
 import { PetCard } from "@/components/pet-card"
+import { PetFilters } from "@/components/pet-filters"
 import { useAuth } from "@/contexts/auth-context"
+import { getPets, addPets } from "@/lib/storage"
+import { Pet } from "@/lib/pet-types"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,116 +19,59 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-// 여러 펫샵의 리스팅을 나타내는 모의 데이터
-const featuredPets = [
-  {
-    id: 1,
-    name: "벨라",
-    breed: "골든 리트리버",
-    age: "8주",
-    gender: "암컷",
-    price: 1200000,
-    location: "서울특별시 강남구",
-    image: "/placeholder.svg?height=300&width=300",
-    shop: "해피펫 애완동물샵",
-    shopUrl: "https://happypet.co.kr/bella",
-    type: "dog",
-    description: "아름다운 골든 리트리버 강아지, 사회화가 잘 되어 있고 평생 가족을 기다리고 있습니다.",
-    vaccinated: true,
-    registered: true,
-  },
-  {
-    id: 2,
-    name: "맥스",
-    breed: "브리티시 숏헤어",
-    age: "12주",
-    gender: "수컷",
-    price: 800000,
-    location: "부산광역시 해운대구",
-    image: "/placeholder.svg?height=300&width=300",
-    shop: "고양이 친구들",
-    shopUrl: "https://catfriends.co.kr/max",
-    type: "cat",
-    description: "멋진 블루-그레이 털을 가진 사랑스러운 브리티시 숏헤어 새끼고양이입니다.",
-    vaccinated: true,
-    registered: true,
-  },
-  {
-    id: 3,
-    name: "루나",
-    breed: "프렌치 불독",
-    age: "10주",
-    gender: "암컷",
-    price: 2500000,
-    location: "인천광역시 연수구",
-    image: "/placeholder.svg?height=300&width=300",
-    shop: "프리미엄 퍼피",
-    shopUrl: "https://premiumpuppy.co.kr/luna",
-    type: "dog",
-    description: "희귀한 블루 프렌치 불독으로 훌륭한 성격과 건강 검진을 완료했습니다.",
-    vaccinated: true,
-    registered: true,
-  },
-  {
-    id: 4,
-    name: "수염이",
-    breed: "메인쿤",
-    age: "16주",
-    gender: "수컷",
-    price: 1000000,
-    location: "대구광역시 수성구",
-    image: "/placeholder.svg?height=300&width=300",
-    shop: "대구 고양이 천국",
-    shopUrl: "https://daegucats.co.kr/whiskers",
-    type: "cat",
-    description: "아름다운 긴 털과 온순한 성격을 가진 장엄한 메인쿤 새끼고양이입니다.",
-    vaccinated: true,
-    registered: false,
-  },
-  {
-    id: 5,
-    name: "록키",
-    breed: "저먼 셰퍼드",
-    age: "6주",
-    gender: "수컷",
-    price: 1500000,
-    location: "광주광역시 서구",
-    image: "/placeholder.svg?height=300&width=300",
-    shop: "산악견사",
-    shopUrl: "https://mountainkennels.co.kr/rocky",
-    type: "dog",
-    description: "챔피언 혈통의 강하고 똑똑한 저먼 셰퍼드 강아지입니다.",
-    vaccinated: false,
-    registered: true,
-  },
-  {
-    id: 6,
-    name: "공주",
-    breed: "페르시안",
-    age: "14주",
-    gender: "암컷",
-    price: 1200000,
-    location: "울산광역시 남구",
-    image: "/placeholder.svg?height=300&width=300",
-    shop: "이국적 펫샵",
-    shopUrl: "https://exoticpets.co.kr/princess",
-    type: "cat",
-    description: "고급스러운 털과 달콤한 성격을 가진 멋진 페르시안 새끼고양이입니다.",
-    vaccinated: true,
-    registered: true,
-  },
-]
-
-const stats = [
-  { label: "활성 리스팅", value: "2,847", icon: Heart },
-  { label: "파트너 샵", value: "156", icon: Users },
-  { label: "서비스 지역", value: "89", icon: MapPin },
-  { label: "행복한 가족", value: "12,450", icon: Calendar },
-]
+import { useToast } from "@/hooks/use-toast"
 
 export default function HomePage() {
-  const { user, isAuthenticated, logout } = useAuth()
+  const auth = useAuth()
+  const { user, isAuthenticated, logout } = auth
+  const [pets, setPets] = useState<Pet[]>([])
+  const [isCrawling, setIsCrawling] = useState(false)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    // 저장된 펫 데이터 로드 (클라이언트 사이드에서만)
+    if (typeof window !== "undefined") {
+      const savedPets = getPets()
+      setPets(savedPets)
+    }
+  }, [])
+
+  const handleCrawl = async () => {
+    setIsCrawling(true)
+    try {
+      const response = await fetch("/api/crawl")
+      const data = await response.json()
+
+      if (data.success) {
+        const allPets: Pet[] = []
+        data.results.forEach((result: any) => {
+          allPets.push(...result.pets)
+        })
+
+        addPets(allPets)
+        setPets(getPets())
+        toast({
+          title: "크롤링 완료",
+          description: `${allPets.length}개의 반려동물 정보를 수집했습니다.`,
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "크롤링 실패",
+        description: "데이터 수집 중 오류가 발생했습니다.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsCrawling(false)
+    }
+  }
+
+  const stats = [
+    { label: "활성 리스팅", value: pets.length.toString(), icon: Heart },
+    { label: "파트너 샵", value: "25", icon: Users },
+    { label: "서비스 지역", value: "전국", icon: MapPin },
+    { label: "업데이트", value: "실시간", icon: Calendar },
+  ]
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
@@ -211,23 +157,23 @@ export default function HomePage() {
               전국의 모든 펫샵 정보를 한눈에 비교하세요. 원하는 반려동물을 찾고 최적의 펫샵에서 분양받으세요.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={handleCrawl}
+                disabled={isCrawling}
+                size="lg"
+                className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-base px-8 h-12 font-medium"
+              >
+                <RefreshCw className={`mr-2 h-4 w-4 ${isCrawling ? "animate-spin" : ""}`} />
+                {isCrawling ? "데이터 수집 중..." : "펫샵 정보 업데이트"}
+              </Button>
               <Link href="/dogs">
-                <Button
-                  size="lg"
-                  className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-base px-8 h-12 font-medium"
-                >
-                  <Search className="mr-2 h-4 w-4" />
-                  강아지 찾기
-                </Button>
-              </Link>
-              <Link href="/cats">
                 <Button 
                   size="lg" 
                   variant="outline" 
                   className="text-base px-8 h-12 font-medium border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900"
                 >
                   <Search className="mr-2 h-4 w-4" />
-                  고양이 찾기
+                  강아지 찾기
                 </Button>
               </Link>
             </div>
@@ -281,17 +227,25 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredPets.map((pet) => (
-              <PetCard key={pet.id} pet={pet} />
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button size="lg" variant="outline">
-              전체 {featuredPets.length}+ 리스팅 보기
-            </Button>
-          </div>
+          {pets.length === 0 ? (
+            <Card className="p-12 text-center border border-slate-200 dark:border-slate-800">
+              <CardContent>
+                <p className="text-slate-600 dark:text-slate-400 mb-4">
+                  아직 수집된 반려동물 정보가 없습니다.
+                </p>
+                <Button onClick={handleCrawl} disabled={isCrawling}>
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isCrawling ? "animate-spin" : ""}`} />
+                  펫샵 정보 수집하기
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {pets.slice(0, 9).map((pet) => (
+                <PetCard key={pet.id} pet={pet} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
